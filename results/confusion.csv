@@ -1,0 +1,15 @@
+feature_set,model,scaling,tn,fp,fn,tp
+fused,knn,none,2920,205,112,4553
+fused,knn,standard,3098,27,2,4663
+fused,mlp,standard,3096,29,97,4568
+fused,random_forest,standard,3111,14,0,4665
+fused,svm_rbf,none,3125,0,232,4433
+fused,svm_rbf,standard,3113,12,2,4663
+sensor,knn,standard,2985,140,115,4550
+sensor,mlp,standard,2921,204,168,4497
+sensor,random_forest,standard,2903,222,84,4581
+sensor,svm_rbf,standard,2968,157,134,4531
+visual,knn,standard,3054,71,0,4665
+visual,mlp,standard,3053,72,92,4573
+visual,random_forest,standard,3100,25,5,4660
+visual,svm_rbf,standard,3049,76,0,4665

@@ -1,0 +1,140 @@
+# RFPP Kelompok 5 — konfigurasi beku.
+# Satu-satunya sumber angka untuk seluruh src/. Tidak boleh ada angka ajaib di kode.
+# Perubahan nilai di sini setelah F5 dianggap mengubah desain dan wajib dicatat.
+
+seed: 20261111
+
+paths:
+  raw_visual: data/raw/visual
+  raw_sensor: data/raw/sensor
+  manifest: data/manifest.json
+  cache_visual: cache/features/visual.parquet
+  cache_sensor: cache/features/sensor.parquet
+  results: results
+  figures: figures
+
+labels:
+  visual: {fresh: segar, spoiled: busuk}
+  sensor: {fresh: normal, spoiled: busuk}
+
+visual:
+  resize: [256, 256]
+  resize_resample: bicubic
+  roi_center_fraction: 0.80
+  denoise: gaussian
+  gaussian_sigma: 1.0
+  color_space: hsv
+  hist_bins: {h: 8, s: 4, v: 4}
+  hist_normalize: l1
+  glcm:
+    levels: 64
+    distances: [1]
+    angles_deg: [0, 45, 90, 135]
+    angle_aggregation: mean
+    symmetric: true
+    normed: true
+    properties: [contrast, homogeneity, energy, correlation]
+  expected_dim: 20
+  class_dirs: {fresh: fresh, spoiled: spoiled}
+  # Keputusan F1 2026-11-11 (rencana §13): visual = satu trayektori kamera, frame tiap 2 menit.
+  # EXIF datetime kosong, jadi timestamp dibaca dari nama berkas; blok waktu = unit split.
+  timestamp:
+    source: filename
+    pattern: '^test_(\d{8})_(\d{6})D\.jpg$'
+    format: "%Y%m%d%H%M%S"
+    session_gap_minutes: 10
+  group_minutes: 30                # sama dengan sensor.block_minutes: satu aturan waktu
+  boundary:
+    rule: drop_adjacent_blocks     # buang blok terakhir kelas awal + blok pertama kelas akhir
+    reason: "label berganti di satu titik waktu; frame bersebelahan hampir identik tetapi berlabel lawan"
+  source:
+    name: Meat Quality Assessment Dataset
+    repository: Kaggle
+    id: crowww/meat-quality-assessment-based-on-deep-learning
+    url: https://www.kaggle.com/datasets/crowww/meat-quality-assessment-based-on-deep-learning
+    license: CC BY 4.0
+    reference: "Ulucan dkk., ASYU 2019"
+
+sensor:
+  # Keputusan F1 2026-11-11 (rencana §11): pakai semua 8 kanal MQ, bukan PCA-6.
+  target_dim: 8
+  reduction: none
+  channels: [Mq-2, Mq-3, Mq-4, Mq-5, Mq-135, Mq-136, Mq-137, Mq-138]
+  # tvc = sumber label (bocor); minutes/sl no = proksi waktu; T/RH = kanal lingkungan.
+  excluded_columns: [sl no, minutes, Temperature, Humidity, tvc, class]
+  class_map: {fresh: [1, 2, 3], spoiled: [4]}
+  class_map_reason: "Opsi A, keputusan kelompok 2026-11-11: TVC<5 vs TVC>=5 (batas spoiled penerbit)"
+  aggregate: {unit: minute, reducer: mean}   # hapus pseudo-replication 12 pembacaan/menit
+  block_minutes: 30                          # unit split blok waktu, bukan baris acak
+  outlier: {method: robust_z, threshold: 5.0}
+  imputation: median
+  scaling: zscore
+  expected_dim: 8
+  source:
+    name: "e nose based Beef Quality Classification Dataset (4 classes)"
+    repository: Mendeley Data
+    id: n8mc3nspfn
+    version: 1
+    url: https://data.mendeley.com/datasets/n8mc3nspfn
+    license: CC BY 4.0
+    file: "Beef quality 4 classes.csv"
+    publisher_sha256: "866367252b8498eddff2f488629e3e38341b2014a2e0a941d88e71a7499e7026"
+
+fusion:
+  concat_order: [visual, sensor]
+  expected_dim: 28                 # 20 visual + 8 sensor (rencana §11.3)
+  post_concat_scaling: standard    # standard | none
+  # Varian pembanding khusus model berbasis jarak (rencana §3.3).
+  distance_models: [knn, svm_rbf]
+  distance_scaling_variants: [standard, none]
+
+protocol:
+  n_folds: 5
+  pairing_seeds: [11, 22, 33, 44, 55]
+  pairing: within_class_without_replacement
+  split_visual: stratified_group   # jatuh ke stratified bila group_id tidak tersedia
+  split_sensor: stratified_group   # blok waktu 30 menit; kelas = segmen waktu (rencana §11.2)
+  group_key: group_id
+  unit_of_replication: pairing_seed
+  # Urutan wajib: split -> pairing di dalam fold -> scaler fit latih -> model fit latih.
+  unimodal_rows_identical_to_fused: true
+
+models:
+  random_forest:
+    n_estimators: 300
+    max_depth: null
+    min_samples_leaf: 1
+    random_state: global     # resolves ke seed di atas
+  svm_rbf:
+    C: 1.0
+    gamma: scale
+  knn:
+    n_neighbors: 5
+    weights: uniform
+    metric: euclidean
+  mlp:
+    hidden_layer_sizes: [64, 32]
+    activation: relu
+    alpha: 0.0001
+    max_iter: 500
+    early_stopping: true
+    random_state: global
+
+metrics:
+  primary: macro_f1
+  positive_label: spoiled          # kelas positif untuk ROC-AUC dan confusion matrix
+  report: [accuracy, macro_f1, precision_macro, recall_macro, roc_auc]
+  confusion_matrix: aggregated_over_folds
+
+probe:
+  # Pasangan diskordan HANYA untuk uji; tidak pernah masuk data latih (rencana F5b).
+  discordant_pairs: [[segar, busuk], [busuk, segar]]
+  train_usage: forbidden
+  measures: [agreement_visual, agreement_sensor, share_predicted_busuk, confidence]
+  accuracy_claim: forbidden        # tidak ada ground truth pasangan diskordan
+
+importance:
+  primary: block_permutation       # permutasi seluruh blok modalitas bersama-sama
+  block_repeat: 20
+  secondary: per_feature_top10
+  confirm_with: drop_one_modality

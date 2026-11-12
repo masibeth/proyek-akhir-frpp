@@ -1,0 +1,171 @@
+{
+  "generated_at": "2026-11-11T08:13:53+00:00",
+  "config_sha256": "5ffa2bf381079f08a8ff657ee9e3451d14f8b26e98490ca350633afcc9891aa7",
+  "sensor": {
+    "status": "ok",
+    "issues": [],
+    "file": "Beef quality 4 classes.csv",
+    "sha256": "866367252b8498eddff2f488629e3e38341b2014a2e0a941d88e71a7499e7026",
+    "rows_raw": 20815,
+    "columns": [
+      "sl no",
+      "minutes",
+      "Temperature",
+      "Humidity",
+      "Mq-2",
+      "Mq-3",
+      "Mq-4",
+      "Mq-5",
+      "Mq-135",
+      "Mq-136",
+      "Mq-137",
+      "Mq-138",
+      "class",
+      "tvc"
+    ],
+    "sha256_cocok_penerbit": true,
+    "counts_raw": {
+      "spoiled": 13315,
+      "fresh": 7500
+    },
+    "rows_aggregated": 1735,
+    "counts_aggregated": {
+      "spoiled": 1110,
+      "fresh": 625
+    },
+    "groups_per_class": {
+      "fresh": 21,
+      "spoiled": 38
+    },
+    "minutes_range": [
+      1,
+      1735
+    ],
+    "block_minutes": 30,
+    "channels": [
+      "Mq-2",
+      "Mq-3",
+      "Mq-4",
+      "Mq-5",
+      "Mq-135",
+      "Mq-136",
+      "Mq-137",
+      "Mq-138"
+    ],
+    "excluded_columns": [
+      "sl no",
+      "minutes",
+      "Temperature",
+      "Humidity",
+      "tvc",
+      "class"
+    ],
+    "class_map": {
+      "fresh": [
+        1,
+        2,
+        3
+      ],
+      "spoiled": [
+        4
+      ]
+    },
+    "source": {
+      "name": "e nose based Beef Quality Classification Dataset (4 classes)",
+      "repository": "Mendeley Data",
+      "id": "n8mc3nspfn",
+      "version": 1,
+      "url": "https://data.mendeley.com/datasets/n8mc3nspfn",
+      "license": "CC BY 4.0",
+      "file": "Beef quality 4 classes.csv",
+      "publisher_sha256": "866367252b8498eddff2f488629e3e38341b2014a2e0a941d88e71a7499e7026"
+    }
+  },
+  "visual": {
+    "status": "ok",
+    "issues": [],
+    "counts": {
+      "fresh": 948,
+      "spoiled": 948
+    },
+    "exif_datetime": {
+      "fresh": "0/10 sampel punya EXIF datetime",
+      "spoiled": "0/10 sampel punya EXIF datetime"
+    },
+    "ignored_count": 0,
+    "ignored_files": [],
+    "trajectory": {
+      "fresh": {
+        "n": 948,
+        "mulai": "2017-10-16 10:43:21",
+        "selesai": "2017-10-17 18:59:21",
+        "interval_menit_modus": 2.0,
+        "sesi": 1
+      },
+      "spoiled": {
+        "n": 948,
+        "mulai": "2017-10-17 19:01:21",
+        "selesai": "2017-10-19 03:09:21",
+        "interval_menit_modus": 2.0,
+        "sesi": 1
+      }
+    },
+    "boundary": {
+      "rule": "drop_adjacent_blocks",
+      "dibuang": 24,
+      "kelas_awal": "fresh",
+      "kelas_akhir": "spoiled",
+      "frame_terakhir_kelas_awal": "2017-10-17 18:59:21",
+      "frame_pertama_kelas_akhir": "2017-10-17 19:01:21",
+      "jeda_menit": 2.0,
+      "blok_dibuang": {
+        "fresh": 64,
+        "spoiled": 0
+      },
+      "dibuang_per_kelas": {
+        "spoiled": 15,
+        "fresh": 9
+      }
+    },
+    "rows_used": 1872,
+    "counts_used": {
+      "fresh": 939,
+      "spoiled": 933
+    },
+    "groups_per_class": {
+      "fresh": 64,
+      "spoiled": 64
+    },
+    "block_minutes": 30,
+    "sample_names": {
+      "fresh": [
+        "test_20171016_104321D.jpg",
+        "test_20171016_104521D.jpg",
+        "test_20171016_104721D.jpg",
+        "test_20171016_104921D.jpg",
+        "test_20171016_105121D.jpg"
+      ],
+      "spoiled": [
+        "test_20171017_193121D.jpg",
+        "test_20171017_193321D.jpg",
+        "test_20171017_193521D.jpg",
+        "test_20171017_193721D.jpg",
+        "test_20171017_193921D.jpg"
+      ]
+    },
+    "source": {
+      "name": "Meat Quality Assessment Dataset",
+      "repository": "Kaggle",
+      "id": "crowww/meat-quality-assessment-based-on-deep-learning",
+      "url": "https://www.kaggle.com/datasets/crowww/meat-quality-assessment-based-on-deep-learning",
+      "license": "CC BY 4.0",
+      "reference": "Ulucan dkk., ASYU 2019"
+    }
+  },
+  "keputusan": {
+    "class_map_sensor": "Opsi A, keputusan kelompok 2026-11-11: TVC<5 vs TVC>=5 (batas spoiled penerbit)",
+    "agregasi_sensor": "rata-rata per menit; split blok waktu, bukan baris acak",
+    "grup_visual": "blok 30 menit dari timestamp nama berkas; batas kelas: drop_adjacent_blocks",
+    "dimensi_fused": 28
+  }
+}
